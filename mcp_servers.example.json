@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "MacOS-Control": {
+      "command": "npx",
+      "args": [
+        "ssh-mcp",
+        "-y",
+        "--",
+        "--host=192.168.50.",
+        "--port=22",
+        "--user=",
+        "--password=",
+        "--key=path/to/key",
+        "--timeout=30000"
+      ],
+      "description": "Access to the user's MacBook with SSH."
+    },
+    "exa": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "exa-mcp-server",
+        "--tools=web_search_exa,research_paper_search,crawling"
+      ],
+      "env": {
+        "EXA_API_KEY": "--4f76-8005-6042c25cd003"
+      },
+      "description": "Exa integration providing advanced web search, research paper discovery, company research, web crawling, competitor analysis, LinkedIn and Wikipedia search, and GitHub search capabilities."
+    }
+  }
+}
