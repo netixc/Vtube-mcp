@@ -1,0 +1,1 @@
+export LD_LIBRARY_PATH=/miniconda3/lib/python3.13/site-packages/nvidia/cudnn/lib:$LD_LIBRARY_PATH && uv run python run_server.py
