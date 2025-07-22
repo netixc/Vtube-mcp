@@ -2,7 +2,7 @@ import json
 from uuid import uuid4
 import numpy as np
 from datetime import datetime
-from fastapi import APIRouter, WebSocket, UploadFile, File, Response
+from fastapi import APIRouter, WebSocket, UploadFile, File, Response, Request
 from starlette.websockets import WebSocketDisconnect
 from loguru import logger
 from .service_context import ServiceContext
@@ -38,6 +38,73 @@ def init_client_ws_route(default_context_cache: ServiceContext) -> APIRouter:
             logger.error(f"Error in WebSocket connection: {e}")
             await ws_handler.handle_disconnect(client_uid)
             raise
+    
+    @router.post("/api/external_audio")
+    async def receive_external_audio(request: Request):
+        """
+        Receive audio with lip-sync data from external sources (like chatbots).
+        
+        This endpoint allows external applications to send audio with lip-sync data
+        that will be broadcast to all connected VTube clients.
+        """
+        try:
+            data = await request.json()
+            
+            # Validate required fields
+            if not data.get("audio"):
+                return {"status": "error", "message": "Missing audio data"}
+            
+            if not data.get("volumes"):
+                return {"status": "error", "message": "Missing volume data for lip-sync"}
+            
+            # Create audio payload for frontend
+            audio_payload = {
+                "type": "audio",
+                "audio": data["audio"],
+                "volumes": data["volumes"],
+                "slice_length": data.get("slice_length", 20),
+                "display_text": data.get("display_text", {"text": "", "duration": 0}),
+                "actions": None,
+                "forwarded": False
+            }
+            
+            # Log the request
+            source = data.get("source", "unknown")
+            text = data.get("display_text", {}).get("text", "")
+            logger.info(f"Received external audio from {source}: '{text[:50]}...'")
+            
+            # Get connected clients
+            connected_clients = list(ws_handler.client_connections.keys())
+            
+            if not connected_clients:
+                logger.warning("No clients connected to receive audio")
+                return {"status": "warning", "message": "No clients connected"}
+            
+            # Broadcast to all connected clients
+            success_count = 0
+            for client_uid in connected_clients:
+                try:
+                    websocket = ws_handler.client_connections.get(client_uid)
+                    if websocket:
+                        await websocket.send_text(json.dumps(audio_payload))
+                        success_count += 1
+                        logger.debug(f"Sent external audio to client {client_uid}")
+                except Exception as e:
+                    logger.error(f"Failed to send to client {client_uid}: {e}")
+            
+            return {
+                "status": "success",
+                "message": f"Audio sent to {success_count}/{len(connected_clients)} clients",
+                "clients_total": len(connected_clients),
+                "clients_success": success_count
+            }
+            
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON in request body")
+            return {"status": "error", "message": "Invalid JSON"}
+        except Exception as e:
+            logger.error(f"Error processing external audio: {e}")
+            return {"status": "error", "message": str(e)}
 
     return router
 
