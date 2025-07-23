@@ -1,0 +1,72 @@
+# Test configuration with TTS disabled
+system_config:
+  conf_version: 'v1.1.1'
+  host: "0.0.0.0"
+  port: 12393
+
+character_config:
+  conf_name: "test-no-tts"
+  conf_uid: "test-no-tts-001"
+  live2d_model_name: "shizuku-local"
+  character_name: "Test Bot"
+  human_name: "Human"
+  
+  persona_prompt: |
+    You are a helpful test assistant.
+  
+  agent_config:
+    conversation_agent_choice: "basic_memory_agent"
+    
+    agent_settings:
+      basic_memory_agent:
+        llm_provider: "openai_compatible_llm"
+        faster_first_response: true
+        segment_method: "pysbd"
+        use_mcpp: false
+        mcp_enabled_servers: []
+        tts_enabled: false  # TTS is disabled for this agent
+    
+    llm_configs:
+      openai_compatible_llm:
+        base_url: "https://api.openai.com/v1"
+        llm_api_key: "test-key"
+        model: "gpt-3.5-turbo"
+        temperature: 1.0
+  
+  asr_config:
+    asr_model: "faster_whisper"
+    faster_whisper:
+      model_path: "distil-medium.en"
+      download_root: "models/whisper"
+      language: "en"
+      device: "auto"
+  
+  tts_config:
+    tts_model: "edge_tts"
+    edge_tts:
+      voice: "en-US-AvaMultilingualNeural"
+  
+  vad_config:
+    vad_model: "silero_vad"
+    silero_vad:
+      orig_sr: 16000
+      target_sr: 16000
+      prob_threshold: 0.4
+      db_threshold: 60
+      required_hits: 3
+      required_misses: 24
+      smoothing_window: 5
+  
+  tts_preprocessor_config:
+    remove_special_char: true
+    ignore_brackets: true
+    ignore_parentheses: true
+    ignore_asterisks: true
+    ignore_angle_brackets: true
+    
+    translator_config:
+      translate_audio: false
+      translate_provider: "deeplx"
+      deeplx:
+        deeplx_target_lang: "JA"
+        deeplx_api_endpoint: "http://localhost:1188/v2/translate"

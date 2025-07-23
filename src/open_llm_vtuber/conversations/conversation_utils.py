@@ -48,6 +48,7 @@ async def process_agent_output(
     websocket_send: WebSocketSend,
     tts_manager: TTSTaskManager,
     translate_engine: Optional[Any] = None,
+    tts_enabled: bool = True,
 ) -> str:
     """Process agent output with character information and optional translation"""
     output.display_text.name = character_config.character_name
@@ -63,6 +64,7 @@ async def process_agent_output(
                 websocket_send,
                 tts_manager,
                 translate_engine,
+                tts_enabled,
             )
         elif isinstance(output, AudioOutput):
             full_response = await handle_audio_output(output, websocket_send)
@@ -88,6 +90,7 @@ async def handle_sentence_output(
     websocket_send: WebSocketSend,
     tts_manager: TTSTaskManager,
     translate_engine: Optional[Any] = None,
+    tts_enabled: bool = True,
 ) -> str:
     """Handle sentence output type with optional translation support"""
     full_response = ""
@@ -102,14 +105,26 @@ async def handle_sentence_output(
             logger.debug("🚫 No translation engine available. Skipping translation.")
 
         full_response += display_text.text
-        await tts_manager.speak(
-            tts_text=tts_text,
-            display_text=display_text,
-            actions=actions,
-            live2d_model=live2d_model,
-            tts_engine=tts_engine,
-            websocket_send=websocket_send,
-        )
+        
+        if tts_enabled:
+            await tts_manager.speak(
+                tts_text=tts_text,
+                display_text=display_text,
+                actions=actions,
+                live2d_model=live2d_model,
+                tts_engine=tts_engine,
+                websocket_send=websocket_send,
+            )
+        else:
+            # Send display text without TTS
+            logger.debug("🔇 TTS is disabled. Sending text only.")
+            await websocket_send(json.dumps({
+                "type": "text",
+                "text": display_text.text,
+                "name": display_text.name,
+                "avatar": display_text.avatar,
+                "actions": actions.to_dict() if actions else None,
+            }))
     return full_response
 
 

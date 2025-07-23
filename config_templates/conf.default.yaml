@@ -58,6 +58,9 @@ character_config:
         use_mcpp: true
         # List of enabled MCP servers from mcp_servers.json
         mcp_enabled_servers: ["MacOS-Control", "exa"]
+        # Enable or disable TTS generation
+        # Set to false to disable VTube's built-in TTS (useful when using external audio)
+        tts_enabled: true
 
       mem0_agent:
         vector_store:

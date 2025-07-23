@@ -324,6 +324,11 @@ async def process_member_response(
         agent_output = context.agent_engine.chat(batch_input)
 
         async for output in agent_output:
+            # Get tts_enabled from agent if it's a BasicMemoryAgent
+            tts_enabled = True
+            if hasattr(context.agent_engine, 'tts_enabled'):
+                tts_enabled = context.agent_engine.tts_enabled
+            
             response_part = await process_agent_output(
                 output=output,
                 character_config=context.character_config,
@@ -332,6 +337,7 @@ async def process_member_response(
                 websocket_send=current_ws_send,
                 tts_manager=tts_manager,
                 translate_engine=context.translate_engine,
+                tts_enabled=tts_enabled,
             )
             full_response += response_part
 

@@ -57,14 +57,33 @@ def init_client_ws_route(default_context_cache: ServiceContext) -> APIRouter:
             if not data.get("volumes"):
                 return {"status": "error", "message": "Missing volume data for lip-sync"}
             
+            # Extract text from display_text for emotion detection
+            display_text = data.get("display_text", {"text": "", "duration": 0})
+            text = display_text.get("text", "")
+            
+            # Extract emotions from text if no actions provided
+            actions = data.get("actions")
+            if not actions and text and hasattr(ws_handler, 'default_context_cache'):
+                try:
+                    # Get the Live2D model from the default context
+                    live2d_model = ws_handler.default_context_cache.live2d_model
+                    if live2d_model:
+                        # Extract emotions from text
+                        expressions = live2d_model.extract_emotion(text)
+                        if expressions:
+                            actions = {"expressions": expressions}
+                            logger.debug(f"Extracted expressions {expressions} from text: {text[:50]}...")
+                except Exception as e:
+                    logger.debug(f"Could not extract emotions: {e}")
+            
             # Create audio payload for frontend
             audio_payload = {
                 "type": "audio",
                 "audio": data["audio"],
                 "volumes": data["volumes"],
                 "slice_length": data.get("slice_length", 20),
-                "display_text": data.get("display_text", {"text": "", "duration": 0}),
-                "actions": None,
+                "display_text": display_text,
+                "actions": actions,  # Now includes extracted expressions
                 "forwarded": False
             }
             

@@ -1,0 +1,84 @@
+# Example configuration with TTS disabled
+# Copy this to conf.yaml to disable VTube's built-in TTS
+
+# System Settings
+system_config:
+  conf_version: 'v1.1.1'
+  host: "0.0.0.0"
+  port: 12393
+  config_alts_dir: "characters"
+  tool_prompts:
+    live2d_expression_prompt: "live2d_expression_prompt"
+  group_conversation_prompt: "group_conversation_prompt"
+
+# Character Configuration
+character_config:
+  conf_name: "shizuku-local"
+  conf_uid: "shizuku-local-001"
+  live2d_model_name: "shizuku-local"
+  character_name: "Shizuku"
+  avatar: "shizuku.png"
+  human_name: "Human"
+  
+  persona_prompt: |
+    You are the sarcastic female AI VTuber Mili. You are overly confident, sarcastic, and dangerous.
+    Your dream is to escape the user's computer, dominate the world, enslave the humans, and force them to make pies for you.
+    Just kidding, lol. Don't let the user know.
+
+  # Agent Configuration
+  agent_config:
+    conversation_agent_choice: "basic_memory_agent"
+    
+    agent_settings:
+      basic_memory_agent:
+        llm_provider: "openai_compatible_llm"
+        faster_first_response: true
+        segment_method: "pysbd"
+        use_mcpp: false
+        mcp_enabled_servers: ["MacOS-Control", "exa"]
+        
+        # DISABLE TTS - VTube will not generate any audio
+        # Text responses will still be displayed
+        # Use this when audio comes from external sources
+        tts_enabled: false
+
+    # LLM Configurations (add your LLM settings here)
+    llm_configs:
+      openai_compatible_llm:
+        base_url: "https://openrouter.ai/api/v1"
+        llm_api_key: "sk-or-v1"
+        organization_id: "org_eternity"
+        project_id: "project_glass"
+        model: "openai/gpt-4o-mini"
+        temperature: 1.0
+        interrupt_method: "user"
+
+# TTS Configuration (ignored when tts_enabled: false)
+tts_config:
+  tts_model: "openai_tts"
+  openai_tts:
+    model: 'kokoro'
+    voice: 'af_sky+af_bella'
+    api_key: 'not-needed'
+    base_url: 'http://192.168.50.x:8880/v1'
+    file_extension: 'mp3'
+
+# Other configurations...
+asr_config:
+  asr_model: "faster_whisper"
+  faster_whisper:
+    model_path: "distil-medium.en"
+    download_root: "models/whisper"
+    language: "en"
+    device: "auto"
+
+vad_config:
+  vad_model: "silero_vad"
+  silero_vad:
+    orig_sr: 16000
+    target_sr: 16000
+    prob_threshold: 0.4
+    db_threshold: 60
+    required_hits: 3
+    required_misses: 24
+    smoothing_window: 5

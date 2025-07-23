@@ -43,6 +43,9 @@ async def receive_external_audio(request: Request):
         "text": "Hello world",
         "duration": 2.5                // Duration in seconds
     },
+    "actions": {                      // Optional: Live2D expressions
+        "expressions": [3]            // Expression indices (e.g., 3 = joy)
+    },
     "source": "chatbot"               // Identifies the source
 }
 ```
@@ -78,10 +81,37 @@ async def receive_external_audio(request: Request):
 
 1. **External Application** generates audio with TTS
 2. **Audio Processing** calculates volume levels for lip-sync (20ms chunks)
-3. **HTTP POST** sends audio + volumes to `/api/external_audio`
-4. **VTube Server** receives and validates the data
-5. **WebSocket Broadcast** sends to all connected browser clients
-6. **Live2D Animation** uses volume data for mouth movements
+3. **Expression Detection** (optional) extracts emotions from text
+4. **HTTP POST** sends audio + volumes + expressions to `/api/external_audio`
+5. **VTube Server** receives and validates the data
+6. **WebSocket Broadcast** sends to all connected browser clients
+7. **Live2D Animation** uses volume data for mouth movements and expression indices for facial expressions
+
+## Expression Support
+
+### Expression Indices (for shizuku model)
+```json
+{
+    "neutral": 0,
+    "anger": 2,
+    "disgust": 2,
+    "fear": 1,
+    "joy": 3,
+    "smirk": 3,
+    "sadness": 1,
+    "surprise": 3
+}
+```
+
+### Including Expressions
+To show expressions with your audio:
+```json
+"actions": {
+    "expressions": [3]     // Single expression (joy)
+    // or
+    "expressions": [0, 3]  // Multiple expressions in sequence
+}
+```
 
 ## Integration Example
 

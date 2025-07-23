@@ -31,6 +31,7 @@ class BasicMemoryAgentConfig(I18nMixin, BaseModel):
     segment_method: Literal["regex", "pysbd"] = Field("pysbd", alias="segment_method")
     use_mcpp: Optional[bool] = Field(False, alias="use_mcpp")
     mcp_enabled_servers: Optional[list[str]] = Field(default_factory=list, alias="mcp_enabled_servers")
+    tts_enabled: Optional[bool] = Field(True, alias="tts_enabled")
     
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
         "llm_provider": Description(
@@ -52,6 +53,10 @@ class BasicMemoryAgentConfig(I18nMixin, BaseModel):
         "mcp_enabled_servers": Description(
             en="List of enabled MCP servers (e.g., ['time', 'ddg-search'])",
             zh="启用的 MCP 服务器列表（如 ['time', 'ddg-search']）",
+        ),
+        "tts_enabled": Description(
+            en="Enable or disable TTS generation (default: True). Set to False to disable VTube's built-in TTS (useful when using external audio)",
+            zh="启用或禁用 TTS 生成（默认：True）。设置为 False 以禁用 VTube 的内置 TTS（在使用外部音频时很有用）",
         ),
     }
 

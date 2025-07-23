@@ -49,6 +49,7 @@ class BasicMemoryAgent(AgentInterface):
         tool_manager: Optional[ToolManager] = None,
         tool_executor: Optional[ToolExecutor] = None,
         mcp_prompt_string: str = "",
+        tts_enabled: bool = True,
     ):
         """Initialize agent with LLM and configuration."""
         super().__init__()
@@ -62,6 +63,7 @@ class BasicMemoryAgent(AgentInterface):
         self._tool_prompts = tool_prompts or {}
         self._interrupt_handled = False
         self.prompt_mode_flag = False
+        self.tts_enabled = tts_enabled
 
         self._tool_manager = tool_manager
         self._tool_executor = tool_executor

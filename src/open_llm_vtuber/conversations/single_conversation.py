@@ -156,6 +156,11 @@ async def process_agent_response(
                 continue
             
             # Process non-dict outputs (SentenceOutput, etc.)
+            # Get tts_enabled from agent if it's a BasicMemoryAgent
+            tts_enabled = True
+            if hasattr(context.agent_engine, 'tts_enabled'):
+                tts_enabled = context.agent_engine.tts_enabled
+            
             response_part = await process_agent_output(
                 output=output,
                 character_config=context.character_config,
@@ -164,6 +169,7 @@ async def process_agent_response(
                 websocket_send=websocket_send,
                 tts_manager=tts_manager,
                 translate_engine=context.translate_engine,
+                tts_enabled=tts_enabled,
             )
             logger.debug(f"Got response_part: {response_part} (type: {type(response_part)})")
             full_response += response_part

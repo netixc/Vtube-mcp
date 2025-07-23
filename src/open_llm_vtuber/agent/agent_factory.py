@@ -81,6 +81,7 @@ class AgentFactory:
                 tool_manager=tool_manager,
                 tool_executor=tool_executor,
                 mcp_prompt_string=mcp_prompt_string,
+                tts_enabled=basic_memory_settings.get("tts_enabled", True),
             )
 
         elif conversation_agent_choice == "mem0_agent":
